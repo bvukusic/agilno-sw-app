@@ -22,6 +22,7 @@ const data = Object.keys(images).map((i) => ({
   ref: React.createRef()
 }));
 
+//Move to its own component
 const Indicator = React.memo(({ data, measures, scrollX }) => {
   const inputRange = data.map((_, index) => (index * width));
   const translateX = scrollX.interpolate({
@@ -36,12 +37,14 @@ const Indicator = React.memo(({ data, measures, scrollX }) => {
   return <Animated.View style={{ height: 3, width: itemWidth, backgroundColor: '#fff', zIndex: 999, position: 'absolute', bottom: -6, transform: [{ translateX: translateX }] }} />
 })
 
+//Move to its own component
 const Tab = React.forwardRef(({ item }, ref) => {
-  return <View style={{ paddingHorizontal: 6, marginHorizontal: 4 }} ref={ref}>
+  return <View style={ styles.tabOuter } ref={ref}>
     <Text style={{ textTransform: 'uppercase', fontSize: 44 / data.length, fontWeight: '700', color: '#fff' }}>{item.title}</Text>
   </View>
 })
 
+//Move to its own component
 const Tabs = ({ data, scrollX }) => {
   const [measures, setMeasures] = React.useState([])
   const tabContainerRef = React.useRef();
@@ -50,24 +53,17 @@ const Tabs = ({ data, scrollX }) => {
     let measures = [];
     data.forEach((item, index) => {
       item.ref.current.measureLayout(findNodeHandle(tabContainerRef.current), (x, y, width, height) => {
-        measures.push({
-          x,
-          y,
-          width,
-          height
-        })
+        measures.push({ x,y,width,height})
         // Last item was measured. Set the state with all measures
         if (measures.length === data.length) {
           setMeasures(measures);
         }
       })
-
     })
   }, [])
 
-
-  return <View style={{ justifyContent: 'center', position: 'absolute', top: 100, width, left: 0 }}>
-    <View style={{ flexDirection: 'row', justifyContent: 'center' }} ref={tabContainerRef}>
+  return <View style={ styles.tabsOuter }>
+    <View style={styles.tabsInner} ref={tabContainerRef}>
       {data.map((item, index) => {
         return <Tab key={item.key} item={item} ref={item.ref} />
       })}
@@ -78,6 +74,7 @@ const Tabs = ({ data, scrollX }) => {
 
 export default function App() {
   const scrollX = React.useRef(new Animated.Value(9)).current;
+  
   return (
     <View style={styles.container}>
       <StatusBar hidden />
@@ -102,7 +99,7 @@ export default function App() {
             <View style={styles.listsContainer}>
               {(item.title == 'movies') ? <Movies /> : <Characters />}
             </View>
-            <View style={[StyleSheet.absoluteFillObject, { backgroundColor: 'rgba(0,0,0,0.2)' }]} />
+            <View style={[StyleSheet.absoluteFillObject, styles.darken]} />
           </View>
         )}
       />
@@ -121,5 +118,25 @@ const styles = StyleSheet.create({
     height: '100%',
     zIndex: 998,
     backgroundColor: 'rgba(1,1,1,0)'
+  },
+  darken: {
+    backgroundColor: 'rgba(0,0,0,0.2)'
+  },
+  tabsOuter: {
+    justifyContent: 'center', 
+    position: 'absolute', 
+    top: 100, width, 
+    left: 0 
+  },
+  tabsInner: {
+    flexDirection: 'row', 
+    justifyContent: 'center'
+  },
+  tabInner: {
+
+  },
+  tabOuter: {
+    paddingHorizontal: 6, 
+    marginHorizontal: 4 
   }
 });
